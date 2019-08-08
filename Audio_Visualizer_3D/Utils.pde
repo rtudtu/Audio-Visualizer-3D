@@ -1,7 +1,7 @@
 //Class for Utils
 
 /**
- * 
+ * My own Array to ArrayList - Processing has trouble with Arrays.asList(array) as of 4/17/18
  **/
 ArrayList<Float> toList(float[] arr) {
   ArrayList<Float> list = new ArrayList<Float>();
@@ -11,6 +11,9 @@ ArrayList<Float> toList(float[] arr) {
   return list;
 }
 
+/**
+ * Returns the sum of an ArrayList of Float as a Float
+ **/
 float floatListSum(ArrayList<Float> floats) {
   float sum = 0;
   for (int i = 0; i < floats.size(); i++) {
@@ -19,6 +22,9 @@ float floatListSum(ArrayList<Float> floats) {
   return sum;
 }
 
+/**
+ * Update the history ArrayLists
+ **/
 void updateHistory() {
   for (int i = history.size() - 1; i > 0; i--) {
     ArrayList<Float> previous = history.get(i - 1);
@@ -27,10 +33,12 @@ void updateHistory() {
     }
     history.set(i, previous);
   }
-  ArrayList<Float> temp = toList(fft.spectrum);
+  ArrayList<Float> temp = spectrum;
   history.set(0, temp);
-}
 
+/**
+ * Update the amplitude ArrayLists
+ **/}
 void updateAmpHistory() {
     for (int i = ampHistory.size() - 1; i > 0; i--) {
     ArrayList<Float> previous = ampHistory.get(i - 1);

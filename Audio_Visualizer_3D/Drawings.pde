@@ -36,10 +36,6 @@ void drawView() {
     case 2:
       frequencyBarsMiddle();
       break;
-      //case 3:
-      //  frequencyBarsRight();
-      //  flash = true;
-      //  break;
     case 3:
       frequencyBarsLeftDouble();
       break;
@@ -99,7 +95,7 @@ void drawFlash() {
   if (flashAlpha > 240) {
     flashAlpha = 240;
   } else if (flashAlpha >= 8) {
-    flashAlpha -= 8;
+    flashAlpha -= 10;
   } else {
     flashAlpha = 0;
   }
@@ -114,23 +110,28 @@ void drawFlash() {
 void flash(ArrayList<Float> first, ArrayList<Float> second) {
   float firstSum = 0;            //Sum of amplitudes at first (current time)
   float secondSum = 0;           //Sum of amplitudes at second (time - 1)
-  //float halfSum = 0;             //Sum of second half of amplitudes (current time)
-  //float halfSum2 = 0;            //Sum of second half of amplitudes (time - 1)
+  //float firstBarSum = 0;
+  //float secondBarSum = 0;
   for (int i = 0; i < second.size(); i++) {
     firstSum += first.get(i);
     secondSum += second.get(i);
-    //if(i > second.size()/2) {
-    //  halfSum += first.get(i);
-    //  halfSum2 += second.get(i);
+    //if(i < bandsDiv) {
+    //firstBarSum += first.get(i);
+    //secondBarSum += second.get(i);
     //}
   }
   if (firstSum > secondSum * 2 && firstSum > 3.0) {
     flashAlpha += firstSum * 100 * flashMultiplier;
   }
-  //if (halfSum > halfSum2 * 2 && halfSum > .2) {
-  //  flashAlpha += halfSum * 200 * flashMultiplier;
+  //if (firstBarSum > secondBarSum * 4 && firstBarSum > 2.0) {
+  //  flashAlpha += firstBarSum * 200 * flashMultiplier;
   //}
 }
+//void flash() {
+//  if(beat.isOnset()) {
+//    flashAlpha = 240;
+//  }
+//}
 
 /**
  * Returns the additional amplitude to add onto the last bar in a row
@@ -147,6 +148,13 @@ float addSignificant(ArrayList<Float> bands) {
 }
 
 /**
+ * Changes color-change ratio
+ **/
+void colorChange() {
+  colorChangeRatio += colorChangeAmt;
+}
+
+/**
  * Fill based on given ratios (range from 0 - 1)
  * hr: hue ratio
  * sr: saturation ratio
@@ -154,7 +162,11 @@ float addSignificant(ArrayList<Float> bands) {
  * ar: alpha ratio
  **/
 void fillRatio(float hr, float sr, float br, float ar) {
-  fill(360 * hr, 360 - 360 * sr, 360 - 360 * br, 360 - 360 * ar);
+  float hue = 360 * hr;
+  if (colorChange) {
+    hue = Math.abs((360 * hr - colorChangeRatio)) % 360;
+  }
+  fill(hue, 360 - 360 * sr, 360 - 360 * br, 360 - 360 * ar);
 }
 
 /**
@@ -166,7 +178,12 @@ void fillRatio(float hr, float sr, float br, float ar) {
 void drawBar(float bHeight, int i, int j) {
   pushMatrix();
   translate(boxSize/2, 0, -boxDepth/2);
-  translate(j * boxSize/bandsDiv, height - bHeight/2, -(i * boxDepth));
+  if (flashAlpha > 100 && randomBars) {
+  //if (shake > 0) {
+    translate(j * boxSize/bandsDiv + random(-boxSize, boxSize), height - bHeight/2, -(i * boxDepth));
+  } else {
+    translate(j * boxSize/bandsDiv, height - bHeight/2, -(i * boxDepth));
+  }
   box(boxSize, bHeight, boxDepth);
   popMatrix();
 }

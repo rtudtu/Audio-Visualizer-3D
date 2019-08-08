@@ -31,22 +31,47 @@ void keyBoardListener() {
  **/
 void keyPressed() {
   if (key == '-' || key == '_') {
-    playbackRate -= .2;
-    song.rate(playbackRate);
+    player.skip(-10000);
   }
   if (key == '=' || key == '+') {
-    playbackRate += .2;
-    song.rate(playbackRate);
+    player.skip(10000);
   }
-  if (key == '0') {
-    playbackRate = 1;
-    song.rate(playbackRate);
+  if (key == 'r' || key == 'R') {
+    if (randomBars) {
+      randomBars = false;
+    } else {
+      randomBars = true;
+    }
   }
-  if (key == 'f') {
+  if (key == 'p' || key == 'P') {
+    if (player.isPlaying()) {
+      player.pause();
+    } else {
+      player.play();
+    }
+  }
+  if (key == 'f' || key == 'F') {
     if (flash) {
       flash = false;
     } else {
       flash = true;
+    }
+  }
+  if (key == 'c' || key == 'C') {
+    if (colorChange) {
+      colorChange = false;
+    } else {
+      colorChange = true;
+    }
+  }
+  if (key == '9' || key == '(') {
+    if (!(bandsDiv <= 1)) {
+      bandsDiv /= 2;
+    }
+  }
+  if (key == '0' || key == ')') {
+    if (!(boxSize >= width)) {
+      bandsDiv *= 2;
     }
   }
   if (key == ']' || key == '}') {
@@ -65,6 +90,15 @@ void keyPressed() {
     } else {
       backView = true;
     }
+  }
+  if (key == ',' || key == '<') {
+    colorChangeAmt -= 1;
+  }
+  if (key == '.' || key == '>') {
+    colorChangeAmt += 1;
+  }
+  if (key == 'm' || key == 'M') {
+    colorChangeAmt = 3;
   }
   switch(key) {
   case '1': //If already mode 1, increment freqMode, otherwise set to mode 1

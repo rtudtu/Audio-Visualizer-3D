@@ -5,31 +5,23 @@
  **/
 void frequencyBarsLeft() {
   for (int i = 0; i < history.size(); i++) {
-    ArrayList<Float> current = history.get(i);    //Current list of bands (playing now)
+    ArrayList<Float> current = history.get(i);         //Current list of bands (playing now)
     float hRatio = (float)i/history.size();            //(i/Total i's)
     //If empty, skip
     if (current.isEmpty()) {
       continue;
     }
-    //If first row of bars, check to flash or not
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     //Draw bands
     for (int j = 0; j < bandsCount; j += bandsDiv) {
       float sum = 0;                       //Sum of bandsDiv amplitude bars
-      float additional = 0;                //Additional amplitude for the last bar displayed
       float bRatio = (float)j/bandsCount;  //(j/Total displayed bands)
       float boxHeight = 0;                 //Normalized height of box
-      if (j == bandsCount - bandsDiv) {
-        additional = addSignificant(current);
-      }
       //Average next bandsDiv bands
       for (int k = j; k < j + bandsDiv; k++) {
         sum += current.get(k);
       }
       sum = sum/bandsDiv; //Average
-      boxHeight = (sum + additional) * height * 5; //Normalize
+      boxHeight = (sum) * height/32; //Normalize
       //Color first row with white outline and fade other rows
       if (i == 0) {
         fillRatio(bRatio, 0, 0, 0);
@@ -54,23 +46,15 @@ void frequencyBarsMiddle() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < bandsCount; j += bandsDiv) {
       float sum = 0;
-      float additional = 0;
       float bRatio = (float)j/bandsCount;
       float boxHeight = 0;
-
-      if (j == bandsCount - bandsDiv) {
-        additional = addSignificant(current);
-      }
       for (int k = j; k < j + bandsDiv; k++) {
         sum += current.get(k);
       }
       sum = sum/bandsDiv;
-      boxHeight = (sum + additional) * height * 5;
+      boxHeight = sum * height/32;
       if (i == 0) {
         fillRatio(bRatio, 0, 0, 0);
         strokeWeight(5);
@@ -80,9 +64,9 @@ void frequencyBarsMiddle() {
         noStroke();
       }
       if ((j/bandsDiv) % 2 == 0) {
-        drawBar(boxHeight, i, current.size()/8 + 1 + j/2);
+        drawBar(boxHeight, i, current.size()/2 + 1 + j/2);
       } else {
-        drawBar(boxHeight, i, current.size()/8 - 1 - j/2);
+        drawBar(boxHeight, i, current.size()/2 - 1 - j/2);
       }
     }
   }
@@ -142,22 +126,15 @@ void frequencyBarsLeftDouble() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < bandsCount; j += bandsDiv) {
       float sum = 0;
-      float additional = 0;
       float bRatio = (float)j/bandsCount;
       float boxHeight = 0;
-      if (j == bandsCount - bandsDiv) {
-        additional = addSignificant(current);
-      }
       for (int k = j; k < j + bandsDiv; k++) {
         sum += current.get(k);
       }
       sum = sum/bandsDiv; //Average
-      boxHeight = ((sum + additional) * height * 5)/2;
+      boxHeight = (sum * height/32)/2;
       if (i == 0) {
         fillRatio(bRatio, 0, 0, 0);
         strokeWeight(5);
@@ -167,14 +144,20 @@ void frequencyBarsLeftDouble() {
         noStroke();
       }
       pushMatrix();
-      translate(boxSize/2, 0, -boxDepth/2);
-      translate(j * boxSize/bandsDiv, 0 + boxHeight/2, -(i * boxDepth));
+      if (flashAlpha > 100 && randomBars) {
+        translate(boxSize/2, 0, -boxDepth/2);
+        translate(j * boxSize/bandsDiv + random(-boxSize, boxSize), 0 + boxHeight/2, -(i * boxDepth));
+      } else {
+        translate(boxSize/2, 0, -boxDepth/2);
+        translate(j * boxSize/bandsDiv, 0 + boxHeight/2, -(i * boxDepth));
+      }
       box(boxSize, boxHeight, boxDepth);
       popMatrix();
       pushMatrix();
-      translate(boxSize/2, 0, -boxDepth/2);
-      translate(j * boxSize/bandsDiv, height - boxHeight/2, -(i * boxDepth));
-      box(boxSize, boxHeight, boxDepth);
+      //translate(boxSize/2, 0, -boxDepth/2);
+      //translate(j * boxSize/bandsDiv, height - boxHeight/2, -(i * boxDepth));
+      //box(boxSize, boxHeight, boxDepth);
+      drawBar(boxHeight, i, j);
       popMatrix();
     }
   }
@@ -190,22 +173,15 @@ void frequencyBarsLeftReverse() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < bandsCount; j += bandsDiv) {
       float sum = 0;
-      float additional = 0;
       float bRatio = (float)j/bandsCount;
       float boxHeight = 0;
-      if (j == bandsCount - bandsDiv) {
-        additional = addSignificant(current);
-      }
       for (int k = j; k < j + bandsDiv; k++) {
         sum += current.get(k);
       }
       sum = sum/bandsDiv;
-      boxHeight = (height/2) - ((sum + additional) * height * 5)/2; //Normalize
+      boxHeight = (height/2) - (sum * height/32)/2; //Normalize
       if (i == 0) {
         fillRatio(bRatio, 0, 0, 0);
         strokeWeight(5);
@@ -215,13 +191,23 @@ void frequencyBarsLeftReverse() {
         noStroke();
       }
       pushMatrix();
-      translate(boxSize/2, 0, -boxDepth/2);
-      translate(j * boxSize/bandsDiv, 0 + boxHeight/2, -(i * boxDepth));
+      if (flashAlpha > 100 && randomBars) {
+        translate(boxSize/2, 0, -boxDepth/2);
+        translate(j * boxSize/bandsDiv + random(-boxSize, boxSize), 0 + boxHeight/2, -(i * boxDepth));
+      } else {
+        translate(boxSize/2, 0, -boxDepth/2);
+        translate(j * boxSize/bandsDiv, 0 + boxHeight/2, -(i * boxDepth));
+      }
       box(boxSize, boxHeight, boxDepth);
       popMatrix();
       pushMatrix();
-      translate(boxSize/2, 0, -boxDepth/2);
-      translate(j * boxSize/bandsDiv, height - boxHeight/2, -(i * boxDepth));
+      if (flashAlpha > 100 && randomBars) {
+        translate(boxSize/2, 0, -boxDepth/2);
+        translate(j * boxSize/bandsDiv + random(-boxSize, boxSize), height - boxHeight/2, -(i * boxDepth));
+      } else {
+        translate(boxSize/2, 0, -boxDepth/2);
+        translate(j * boxSize/bandsDiv, height - boxHeight/2, -(i * boxDepth));
+      }
       box(boxSize, boxHeight, boxDepth);
       popMatrix();
     }
@@ -238,10 +224,7 @@ void frequencyLinesX() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
-    for (int j = 0; j < bandsCount; j += bandsDiv) {
+    for (int j = 0; j < bandsCount - bandsDiv; j += bandsDiv) {
       float bRatio = (float)j/bandsCount;
       float sum = 0;
       float sumNext = 0;
@@ -255,17 +238,20 @@ void frequencyLinesX() {
       }
       sum = sum/bandsDiv;
       sumNext = sumNext/bandsDiv;
-      boxHeight = sum * height * 5;
-      boxHeightNext = sumNext * height * 5;
+      boxHeight = sum * height/32;
+      boxHeightNext = sumNext * height/32;
       strokeWeight(5);
-      stroke(360 * bRatio, 360, 360 - 360 * hRatio, 360 - 360 * hRatio);
-      if(!(j + bandsDiv >= bandsCount)) {
-      line((j + bandsDiv/2) * boxSize/bandsDiv, height - boxHeight, -(i * boxDepth), 
-        ((j + bandsDiv/2) + bandsDiv) * boxSize/bandsDiv, height - boxHeightNext, -(i * boxDepth));
+      stroke(Math.abs(360 * bRatio - colorChangeRatio) % 360, 360, 360 - 360 * hRatio, 360 - 360 * hRatio);
+      if (!(j + bandsDiv >= bandsCount)) {
+        line((j + bandsDiv/2) * boxSize/bandsDiv, height - boxHeight, -(i * boxDepth), 
+          ((j + bandsDiv/2) + bandsDiv) * boxSize/bandsDiv, height - boxHeightNext, -(i * boxDepth));
       }
       if (i == 0) {
         strokeWeight(25);
         point((j + bandsDiv/2) * boxSize/bandsDiv, height - boxHeight, -(i * boxDepth));
+        if (j >= bandsCount - bandsDiv*2) {
+          point((j + bandsDiv + bandsDiv/2) * boxSize/bandsDiv, height - boxHeight, -(i * boxDepth));
+        }
       }
     }
   }
@@ -282,9 +268,6 @@ void frequencyLinesZ() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < bandsCount; j += bandsDiv) {
       float bRatio = (float)j/bandsCount;
       float sum = 0;
@@ -299,10 +282,10 @@ void frequencyLinesZ() {
       }
       sum = sum/bandsDiv;
       sumNext = sumNext/bandsDiv;
-      boxHeight = sum * height * 5;
-      boxHeightNext = sumNext * height * 5;
+      boxHeight = sum * height/32;
+      boxHeightNext = sumNext * height/32;
       strokeWeight(5);
-      stroke(360 * bRatio, 360, 360 - 360 * hRatio, 360 - 360 * hRatio);
+      stroke(Math.abs(360 * bRatio - colorChangeRatio) % 360, 360, 360 - 360 * hRatio, 360 - 360 * hRatio);
       line((j + bandsDiv/2) * boxSize/bandsDiv, height - boxHeight, -(i * boxDepth), 
         (j + bandsDiv/2) * boxSize/bandsDiv, height - boxHeightNext, -((i + 1) * boxDepth));
       if (i == 0) {
@@ -326,9 +309,6 @@ void frequencyDots() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < bandsCount; j += bandsDiv) {
       float bRatio = (float)j/bandsCount;
       float sum = 0;
@@ -337,17 +317,21 @@ void frequencyDots() {
         sum += current.get(k);
       }
       sum = sum/bandsDiv;
-      boxHeight = sum * height * 5;
+      boxHeight = sum * height/32;
       if (i == 0) {
         fillRatio(bRatio, 0, 0, 0);
       } else {
         fillRatio(bRatio, 0, hRatio, hRatio);
       }
-      strokeWeight(5);
-      stroke(360 * bRatio, 360, 360 - 360 * hRatio, 360 - 360 * hRatio);
+      strokeWeight(10);
+      stroke(Math.abs(360 * bRatio - colorChangeRatio) % 360, 360, 360 - 360 * hRatio, 360 - 360 * hRatio);
       pushMatrix();
       translate(j * boxSize/bandsDiv, height - boxHeight, -(i * boxDepth));
-      point(0, 0, 0);
+      if (flashAlpha > 100 && randomBars) {
+        point(0 + random(-boxSize, boxSize), 0, 0);
+      } else {
+        point(0, 0, 0);
+      }
       popMatrix();
     }
   }
@@ -365,13 +349,10 @@ void amplitudeBarsSide() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < bandsCount; j++) {
       sum += current.get(j);
     }
-    boxHeight = sum * height/8; //Normalize
+    boxHeight = sum * height/1024; //Normalize
     for (int j = 0; j < bandsCount; j += 4) {
       float bRatio = (float)j/bandsCount;
       if (i == 0) {
@@ -396,15 +377,12 @@ void amplitudeBarsCorner() {
     float hRatio = (float)i/ampHistory.size();
     if (current.isEmpty()) {
       continue;
-    }    
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
     }
     for (int j = 0; j < current.size(); j++) {
       float bRatio = (float)j/current.size();
       float amp = current.get(j);
-      float boxHeight = amp * height/8;
-      if (i == 0) {
+      float boxHeight = amp * height/1024;
+      if (i == 0 && j == 0) {
         fillRatio(bRatio/2 + hRatio/2, 0, 0, 0);
         strokeWeight(5 - 4 * hRatio);
         stroke(360, 360 - 360 * hRatio);
@@ -427,13 +405,10 @@ void amplitudeBarsMiddle() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < current.size()/2; j++) {
       float bRatio = (float)j/current.size();
       float amp = current.get(j);
-      float boxHeight = amp * height/8;
+      float boxHeight = amp * height/1024;
       if (i == 0) {
         fillRatio(bRatio, 0, 0, 0);
         strokeWeight(5);
@@ -458,13 +433,10 @@ void amplitudeBarsMiddleDouble() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < current.size()/2; j++) {
       float bRatio = (float)j/current.size();
       float amp = current.get(j);
-      float boxHeight = (amp * height/8)/2;
+      float boxHeight = (amp * height/1024)/2;
       if (i == 0) {
         fillRatio(bRatio, 0, 0, 0);
         strokeWeight(5);
@@ -509,13 +481,10 @@ void amplitudeBarsCornerReverse() {
     if (current.isEmpty()) {
       continue;
     }
-    if (i == 0) {
-      flash(history.get(0), history.get(1));
-    }
     for (int j = 0; j < current.size(); j++) {
       float bRatio = (float)j/current.size();
       float amp = current.get(j);
-      float boxHeight = (height/2) - (amp * height/8)/2;
+      float boxHeight = (height/2) - (amp * height/1024)/2;
       if (i == 0) {
         fillRatio(bRatio/2 + hRatio/2, 0, 0, 0);
         strokeWeight(5 - 4 * hRatio);
